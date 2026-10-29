@@ -1,0 +1,177 @@
+/* mdee：ダイアログ・検索と置換のウィンドウの見た目（mdew の dialog\DialogStyles.xaml と同じ、Windows 11 風のもの）。
+   色は mdew の Theme.cs と同じ。暗い配色の時は body に dark を付ける（dialog.js）。 */
+:root {
+  --bg: #ffffff;
+  --text: #1c1c1c;
+  --sub-text: #555555;
+  --status-text: #666666;
+  --disabled-text: #a0a0a0;
+  --accent: #0078d4;
+  --accent-hover: #1a86d9;
+  --on-accent: #ffffff;
+  --focus-border: #1c1c1c;
+  --button-bg: #fdfdfd;
+  --button-hover-bg: #e0eef9;
+  --button-pressed-bg: #cce4f7;
+  --button-border: #d0d0d0;
+  --button-border-bottom: #bababa;
+  --button-hover-border: #0078d4;
+  --input-bg: #ffffff;
+  --input-hover-bg: #fafafa;
+  --input-focus-bg: #ffffff;
+  --input-border: #d0d0d0;
+  --input-border-bottom: #8a8a8a;
+  --box-bg: #fdfdfd;
+  --box-border: #8a8a8a;
+  --list-bg: #ffffff;
+  --list-border: #d0d0d0;
+  --item-hover: #f0f0f0;
+  --item-selected: #cce4f7;
+  --info-bg: #eef4fb;
+  --info-border: #c8dcf0;
+  --info-link: #0b62c4;
+  --chevron: #5f5f5f;
+}
+body.dark {
+  --bg: #202020;
+  --text: #f0f0f0;
+  --sub-text: #b4b4b4;
+  --status-text: #a8a8a8;
+  --disabled-text: #6e6e6e;
+  --accent: #4cc2ff;
+  --accent-hover: #6ccbff;
+  --on-accent: #000000;
+  --focus-border: #f0f0f0;
+  --button-bg: #2d2d2d;
+  --button-hover-bg: #2f3b47;
+  --button-pressed-bg: #26323d;
+  --button-border: #444444;
+  --button-border-bottom: #3a3a3a;
+  --button-hover-border: #4cc2ff;
+  --input-bg: #2b2b2b;
+  --input-hover-bg: #323232;
+  --input-focus-bg: #1f1f1f;
+  --input-border: #444444;
+  --input-border-bottom: #9a9a9a;
+  --box-bg: #2b2b2b;
+  --box-border: #9a9a9a;
+  --list-bg: #2b2b2b;
+  --list-border: #444444;
+  --item-hover: #363636;
+  --item-selected: #264f78;
+  --info-bg: #1e2a36;
+  --info-border: #2f4a63;
+  --info-link: #4daafc;
+  --chevron: #b4b4b4;
+  color-scheme: dark;
+}
+
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 12px "Yu Gothic UI", "Meiryo UI", "Segoe UI", sans-serif;
+  user-select: none;
+  overflow: hidden;
+}
+main { padding: 22px; }
+body.find main { padding: 22px 22px 0; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
+
+.title { font-weight: bold; margin: 0 0 16px; }
+.caption { color: var(--sub-text); margin: 0 0 4px; }
+.label { margin: 0 0 4px; }
+.mono { font-family: Consolas, Meiryo, monospace; }
+
+input[type="text"] {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 0 14px;
+  padding: 5px 6px;
+  font: inherit;
+  color: var(--text);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-bottom-color: var(--input-border-bottom);
+  border-radius: 4px;
+  outline: none;
+  user-select: text;
+}
+input[type="text"]:hover { background: var(--input-hover-bg); }
+input[type="text"]:focus { background: var(--input-focus-bg); border-bottom: 2px solid var(--accent); padding-bottom: 4px; }
+input.mono { font-family: Consolas, Meiryo, monospace; }
+
+.buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+.wrap-buttons { display: flex; flex-wrap: wrap; }
+.wrap-buttons button { margin: 0 8px 8px 0; }
+button {
+  min-width: 84px;
+  padding: 5px 12px;
+  font: inherit;
+  color: var(--text);
+  background: var(--button-bg);
+  border: 1px solid var(--button-border);
+  border-bottom-color: var(--button-border-bottom);
+  border-radius: 4px;
+  outline: none;
+}
+button:hover { background: var(--button-hover-bg); border-color: var(--button-hover-border); }
+button:active { background: var(--button-pressed-bg); }
+button:focus-visible { box-shadow: 0 0 0 1px var(--bg), 0 0 0 2px var(--focus-border); }
+button.default { color: var(--on-accent); background: var(--accent); border-color: var(--accent); }
+button.default:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+button.wide { min-width: 100px; }
+button.hidden, .hidden { display: none !important; }
+
+label.option { display: inline-flex; align-items: center; gap: 6px; margin-right: 20px; }
+label.option.disabled { color: var(--disabled-text); }
+input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); margin: 0; }
+.row { display: flex; align-items: center; margin: 0 0 10px; }
+
+/* 置換後の文字列（開いた時だけ、置換のボタンを表示する） */
+details { margin: 0 0 14px; }
+details summary { cursor: default; list-style: none; display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: "›"; display: inline-block; width: 10px; color: var(--chevron); transition: transform 0.1s; }
+details[open] summary::before { transform: rotate(90deg); }
+details input[type="text"] { margin: 2px 0 0; }
+
+#status { color: var(--status-text); margin: 6px 0 0; white-space: pre-wrap; min-height: 1em; }
+
+/* 結果の一覧（ダブルクリックでその箇所へ移る） */
+#results {
+  flex: 1 1 auto;
+  min-height: 60px;
+  max-height: 500px;
+  margin: 8px 0 20px;
+  overflow: auto;
+  background: var(--list-bg);
+  border: 1px solid var(--list-border);
+  border-radius: 4px;
+  outline: none;
+  font: 12px Consolas, Meiryo, monospace;
+  user-select: none;
+}
+body.manual-size #results { max-height: none; }
+#results div { padding: 3px 6px; white-space: pre; }
+#results div:hover { background: var(--item-hover); }
+#results div.selected { background: var(--item-selected); }
+
+/* 1 件ずつ置換の途中に表示する欄 */
+#step {
+  flex: 0 0 auto;
+  margin: 14px 0 20px;
+  padding: 14px;
+  background: var(--info-bg);
+  border: 1px solid var(--info-border);
+  border-radius: 4px;
+}
+#step-file { font: 11px Consolas, Meiryo, monospace; color: var(--info-link); margin: 0 0 6px; word-break: break-all; }
+#step-context { font: 12px Consolas, Meiryo, monospace; margin: 0 0 12px; white-space: pre-wrap; word-break: break-all; }
+#step button { min-width: 70px; }
+
+/* バージョン情報 */
+.about { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 18px 0; }
+.about img { width: 55px; height: 55px; margin-bottom: 5px; }
+.about .app { font-size: 15px; }
+.about .version { font-size: 13px; }
+.about .copyright { font-size: 11px; margin-top: 12px; }

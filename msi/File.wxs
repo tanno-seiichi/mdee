@@ -1,0 +1,61 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Fragment>
+
+    <!-- アプリ一式（npm run package で作った out\mdee の中身。tools\package.js 参照）。mdee.exe・Electron（Chromium）の
+         ファイル・Electron と Chromium のライセンス（LICENSE・LICENSES.chromium.html）・resources\app（mdee の main.js・
+         src・web・dialog・README.md 等）を、フォルダの構成のまま入れる。Electron の版を上げてファイルが増減しても、
+         ここは直さなくてよい。 -->
+    <ComponentGroup Id="mdeeApp" Directory="INSTALLFOLDER">
+      <Files Include="..\out\mdee\**" />
+    </ComponentGroup>
+
+    <ComponentGroup Id="mdee" Directory="INSTALLFOLDER">
+
+		<!-- エクスプローラーの右クリックメニューに「mdeeで開く」を追加する（.mdファイル向け）。
+		     レジストリのキーの名前は、mde・mdew（同じ作者の別のアプリ）と別にする（OpenWithMdee）。同じ名前だと、
+		     Guid="*" で作られるコンポーネントの GUID も同じになり、Windows インストーラーが 1 つのものとして扱うため、
+		     アンインストールしても消えなくなる。
+		     .mdファイルの既定アプリの設定とは関係なく（.mdをダブルクリックした時に開くアプリが
+		     何であっても）、SystemFileAssociationsの下に登録することで常にこの項目が表示される。
+		     ファイルを選択して実行すると、そのファイルを開く（main.js の startupPathFrom 参照）。
+		     追加するかどうかはインストール時にユーザーへ確認する（ADDCONTEXTMENUプロパティ、
+		     既定は追加しない側。UpgradeConfirmDlg.wxsのContextMenuOptionDlg参照）。 -->
+		<Component Id="OpenWithMdeeFileVerb.Component" Directory="INSTALLFOLDER" Guid="*" Condition="ADDCONTEXTMENU = &quot;1&quot;">
+			<RegistryValue Root="HKCR" Key="SystemFileAssociations\.md\shell\OpenWithMdee" Type="string" Value="!(loc.OpenWithMdeeVerb)" KeyPath="yes" />
+			<RegistryValue Root="HKCR" Key="SystemFileAssociations\.md\shell\OpenWithMdee" Name="MUIVerb" Type="string" Value="!(loc.OpenWithMdeeVerb)" />
+			<RegistryValue Root="HKCR" Key="SystemFileAssociations\.md\shell\OpenWithMdee" Name="Icon" Type="string" Value="[INSTALLFOLDER]mdee.exe,0" />
+			<RegistryValue Root="HKCR" Key="SystemFileAssociations\.md\shell\OpenWithMdee\command" Type="string" Value="&quot;[INSTALLFOLDER]mdee.exe&quot; &quot;%1&quot;" />
+		</Component>
+
+		<!-- エクスプローラーでフォルダの何もない場所を右クリックした時のコンテキストメニューにも
+		     「mdeeで開く」を追加する。実行すると、そのフォルダをmdeeのフォルダビューに読み込んだ
+		     状態で起動する（%Vはこの右クリックの対象フォルダのパスに展開される）。上記と同じ
+		     ADDCONTEXTMENUプロパティでまとめて追加要否を判定する（片方だけ追加する設定は無い）。 -->
+		<Component Id="OpenWithMdeeFolderVerb.Component" Directory="INSTALLFOLDER" Guid="*" Condition="ADDCONTEXTMENU = &quot;1&quot;">
+			<RegistryValue Root="HKCR" Key="Directory\Background\shell\OpenWithMdee" Type="string" Value="!(loc.OpenWithMdeeVerb)" KeyPath="yes" />
+			<RegistryValue Root="HKCR" Key="Directory\Background\shell\OpenWithMdee" Name="MUIVerb" Type="string" Value="!(loc.OpenWithMdeeVerb)" />
+			<RegistryValue Root="HKCR" Key="Directory\Background\shell\OpenWithMdee" Name="Icon" Type="string" Value="[INSTALLFOLDER]mdee.exe,0" />
+			<RegistryValue Root="HKCR" Key="Directory\Background\shell\OpenWithMdee\command" Type="string" Value="&quot;[INSTALLFOLDER]mdee.exe&quot; &quot;%V&quot;" />
+		</Component>
+
+		<!-- License（mdee の MIT License。resources\app にも同じものがある） -->
+		<Component Id="License"><File Id="LICENSE.txt" Source="..\LICENSE.txt" /></Component>
+
+		<!-- サードパーティのソフトウェア（Electron・Chromium）のライセンス表示 -->
+		<Component Id="ThirdPartyNotices"><File Source="THIRD-PARTY-NOTICES.txt" /></Component>
+
+		<!-- スタートメニューショートカット。System.AppUserModel.ID は、main.js の app.setAppUserModelId と同じにする
+		     （タスクバーで、ショートカットから起動したものと同じまとまりになるように）。 -->
+		<Component Id="StartMenuShortcutComponent" Directory="ProgramMenuDir" Guid="*">
+			<Shortcut Id="StartMenuShortcut" Name="mdee" Target="[INSTALLFOLDER]mdee.exe" WorkingDirectory="INSTALLFOLDER" >
+				<ShortcutProperty Key="System.AppUserModel.ID" Value="tanno-seiichi.mdee"/>
+			</Shortcut>
+
+			<RemoveFolder Id="RemoveProgramMenuDir" Directory="ProgramMenuDir" On="uninstall" />
+
+			<RegistryValue Root="HKCU" Key="Software\tanno-seiichi\mdee" Name="StartMenu" Type="integer" Value="1" KeyPath="yes"/>
+		</Component>
+
+	</ComponentGroup>
+  </Fragment>
+</Wix>

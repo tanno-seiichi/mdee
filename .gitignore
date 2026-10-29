@@ -1,0 +1,4 @@
+node_modules/
+out/
+msi/bin/
+msi/obj/

@@ -1,0 +1,28 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <!-- Version は package.json の version（msi.wixproj の ProductVersion） -->
+  <Package
+	  Name="mdee"
+	  Manufacturer="tanno-seiichi"
+	  Version="$(var.ProductVersion)"
+	  UpgradeCode="{EDFA6C20-35A4-48A4-9305-0C893F467532}"
+	  Scope="perMachine">
+
+    <MajorUpgrade
+		DowngradeErrorMessage="!(loc.DowngradeError)" />
+
+	  <ui:WixUI Id="WixUI_MinimalUpgrade" />
+	  <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+
+    <Icon Id="ProductIcon" SourceFile="..\images\mde.ico" />
+    <Property Id="ARPPRODUCTICON" Value="ProductIcon" />
+
+    <!-- cabファイルを外部ファイルとして出力せず、.msiファイルに埋め込む -->
+    <MediaTemplate EmbedCab="yes" />
+
+    <Feature Id="Main">
+      <ComponentGroupRef Id="mdee" />
+      <ComponentGroupRef Id="mdeeApp" />
+    </Feature>
+  </Package>
+</Wix>

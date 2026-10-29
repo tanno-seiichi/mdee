@@ -1,0 +1,19 @@
+{
+  "name": "mdee",
+  "productName": "mdee",
+  "version": "0.1.0",
+  "description": "mdee - Markdown Editor by Electron",
+  "author": "tanno-seiichi",
+  "license": "MIT",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "package": "node tools/package.js"
+  },
+  "devDependencies": {
+    "electron": "44.9.3",
+    "resedit": "2.0.3"
+  },
+  "copyright": "Copyright © 2026 tanno-seiichi"
+}

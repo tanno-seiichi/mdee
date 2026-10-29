@@ -1,0 +1,32 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+  <!--
+    mdee のインストーラー（mdee.msi）。先に npm run package で out\mdee を作っておく（build.cmd がまとめて行う）。
+    out\mdee の中身は、File.wxs の Files でフォルダごと入れる（Electron のファイルは多く、版ごとに変わるため、1 つずつは書かない）。
+    出力：bin\x64\Release\ja-JP\mdee.msi（日本語）・bin\x64\Release\en-US\mdee.msi（英語）
+  -->
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <OutputName>mdee</OutputName>
+    <!-- 64 ビット版（Program Files にインストールする） -->
+    <Platform Condition="'$(Platform)' == '' or '$(Platform)' == 'AnyCPU'">x64</Platform>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <!-- .wixpdb（デバッグ・パッチ生成用シンボルファイル）を出力せず、.msi単体になるようにする -->
+    <SuppressPdbOutput>true</SuppressPdbOutput>
+    <!-- バージョンは package.json の version に合わせる（最初の "version" の値） -->
+    <MdeeVersion>$([System.Text.RegularExpressions.Regex]::Replace($([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)\..\package.json')), '(?s)^.*?"version"\s*:\s*"([^"]+)".*$', '$1'))</MdeeVersion>
+    <DefineConstants>ProductVersion=$(MdeeVersion)</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="License.rtf" />
+    <Content Include="THIRD-PARTY-NOTICES.txt" />
+    <Content Include="LICENSE-MS-RL.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
+  </ItemGroup>
+  <!-- out\mdee が無い時は、分かりやすいエラーにする -->
+  <Target Name="CheckAppFolder" BeforeTargets="Build;CoreCompile">
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\..\out\mdee\mdee.exe')" Text="out\mdee\mdee.exe がありません。先に npm run package を実行してください（build.cmd）。" />
+    <Message Importance="high" Text="mdee v$(MdeeVersion) のインストーラーを作ります" />
+  </Target>
+</Project>

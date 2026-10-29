@@ -1,0 +1,47 @@
+mdee Third Party Notices
+(The third-party software used in mdee, and their licenses)
+
+mdee uses the following third-party software.
+Each is provided under its own license, reproduced or referenced below.
+
+========================================================================
+Electron  version 44.9.3
+https://www.electronjs.org/
+https://github.com/electron/electron
+------------------------------------------------------------------------
+Files: mdee.exe (electron.exe, renamed; its icon and version information
+       are replaced with mdee's), and the other files in the installation
+       folder except resources\app, LICENSE.txt and this file.
+       The original license file is installed as LICENSE.
+========================================================================
+
+Copyright (c) Electron contributors
+Copyright (c) 2013-2020 GitHub Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+========================================================================
+Chromium, Node.js, V8 and the other software included in Electron
+========================================================================
+
+Electron includes Chromium, Node.js, V8, FFmpeg, ICU and many other
+open source components. Their licenses and notices are reproduced in
+LICENSES.chromium.html in the installation folder (the file is
+distributed with Electron as is; open it in a web browser).
