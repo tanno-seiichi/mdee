@@ -28,6 +28,7 @@ mdee（Markdown Editor by Electron）は、mdew（Markdown Editor by WebView2）
   - `settings.js`：設定（`%LocalAppData%\mdee\settings.json`）
   - `theme.js`：配色（ライト・ダーク。Windows の設定に合わせる）
   - `log.js`：エラー・起動時間の記録（`%LocalAppData%\mdee\error.log`）
+  - `trace.js`：開発用。動作の記録（Chromium のトレース）を取る（下記「入力・日本語入力・スクロール位置の確認」）
 - `dialog\`：ダイアログの画面（`dialog.html`・`dialog.css`・`dialog.js`。mdew の `dialog\*.xaml` の移植。
   見た目は mdew と同じ Windows 11 風）
 - `web\`：画面側（mdew の `web` フォルダをコピーしたもの。窓口を `window.mdeeHost` にした等、少しだけ変えている）
@@ -38,6 +39,8 @@ mdee（Markdown Editor by Electron）は、mdew（Markdown Editor by WebView2）
 - `tools\package.js`：配布用のフォルダ（`out\mdee`）を作る（`npm run package`）
 - `build.cmd`：インストーラーを作る（npm install → npm run package → msi のビルド）
 - `measure.cmd`：起動時間を続けて測る（開発用の Electron で 5 回起動して、それぞれ自動で終了する）
+- `dev.cmd`：開発用の Electron で起動する（ステータスバーに停止・入力遅延の回数を表示する。下記）
+- `.vscode\launch.json`：VS Code の「実行とデバッグ」の設定（下記「Visual Studio Code でのデバッグ」）
 - `msi\`：インストーラー（WiX Toolset 5）のプロジェクト（mdew の msi を元にしたもの）
   - `msi.wixproj`：バージョンは `package.json` から読む
   - `Package.wxs`：製品名・アップグレードコード・アイコン等
@@ -62,6 +65,20 @@ node node_modules\electron\install.js   （Electron 本体が node_modules\elect
 npm start                                （開発用の Electron で起動する）
 npm start -- C:\path\to\file.md          （ファイルを指定して起動する）
 ```
+
+### Visual Studio Code でのデバッグ
+
+フォルダ（`C:\src\mde_refactor\mdee`）を VS Code で開き、「実行とデバッグ」で次のどちらかを選んで F5 を押します
+（`.vscode\launch.json`）。メインプロセス（`main.js`・`src`）と画面側（`web`・`dialog`）の両方にブレークポイントを
+置けます。止めると、mdee のウィンドウもすべて閉じます。
+
+- **mdee（メインプロセス＋画面側）**：ふつうに起動する（何も開かない）
+- **mdee（ファイルを指定）**：開くファイル・フォルダのパスを入力してから起動する
+
+画面側のデバッガーは、Electron の `--remote-debugging-port=9223` につなぎます（ほかのアプリがこのポートを使っている時は、
+`launch.json` の 3 か所の 9223 を変えます）。mdee の中の F12（開発者ツール）でも、画面側を調べられます。
+
+### インストーラー
 
 インストーラーは `build.cmd` を実行すると作られます（`msi\bin\x64\Release\ja-JP\mdee.msi` と `en-US\mdee.msi`）。
 `build.cmd` は次の 3 つを順に行います。
@@ -97,6 +114,8 @@ npm start -- C:\path\to\file.md          （ファイルを指定して起動す
 - `https://tmp.mdee/<ウィンドウの番号>/<ファイル名>`：貼り付けた画像（保存するまでは、ウィンドウごとの一時フォルダ
   `%TEMP%\mdee\<uuid>` に置く）。保存すると `<ファイル名>.images` フォルダへ移し、文書の中の URL も相対パスに直します。
 - それ以外の https（インターネット上の画像）は、そのまま読み込みます。画像以外のファイルは返しません。
+- 画像のファイルは非同期で読みます（メインプロセスを止めない。メインプロセスは画面への入力の受け渡しもしているので、
+  大きな画像・ネットワーク上のフォルダの画像を読む間に、キー入力が遅れないように）。
 
 ### メニュー・ダイアログ
 
@@ -155,3 +174,35 @@ npm start -- C:\path\to\file.md          （ファイルを指定して起動す
 - メニューを開いている時に `←`・`→` で隣のメニューへ移れません（上記）。
 - 設定・ログは `%LocalAppData%\mdee` です（mdew の設定は引き継ぎません）。
 - 右クリックメニューのキーの名前は `OpenWithMdee` です（mde・mdew と一緒に入れても、別の項目になります）。
+
+## 入力・日本語入力・スクロール位置の確認
+
+mde（WPF）で起きた入力の遅れ・日本語入力（IME）の不具合・スクロール位置のずれ（mde の `doc\DEVELOPMENT_LOG.md` 14.12・
+14.34〜14.44・14.49〜14.55・14.125 等）が mdee で起きないかを確かめた結果と、確かめ方です（2026-10）。
+
+### 確かめ方（開発用の機能）
+
+- `dev.cmd`（または `npm start`）で起動すると、ステータスバーに「停止」（画面が 200ms 以上止まった回数）・「入力遅延」
+  （キー等の入力を受け取るまでに 200ms 以上かかった回数）を表示します（mdew の Debug ビルドと同じ。`web\js\main.js` の
+  startStallMonitor）。インストールした mdee でも、環境変数 `MDEE_DEBUG=1` を付けて起動すると表示します。
+  ウィンドウが裏にある間はタイマーが間引かれるので、その間の「停止」は数えすぎになります（手前で操作している時の値を見る）。
+- 同じく開発用の起動の時は、`Ctrl+Shift+F11` で動作の記録（トレース）を始め、もう一度押すと止めて
+  `%LocalAppData%\mdee\trace-<日時>.json` に保存します（`src\trace.js`。Perfetto・chrome://tracing で開ける）。
+
+### 結果
+
+- 入力の遅れ：メインプロセスは、入力 1 文字ごとに仕事をしません（画面側からのメッセージは、最初の変更の dirty だけ）。
+  入力中のメインプロセスの遅れは 5ms 未満でした。日本語入力をしない時は、3400 行（約 160KB）の文書の末尾でも、
+  停止・入力遅延は出ませんでした。
+- 日本語入力：箇条書き・引用・表のセル・コードブロックで、Enter・Shift+Enter・Tab の直後に入力しても、正しい位置に入り
+  ます（Windows の Microsoft IME で確認）。変換中の Enter（確定）で改行が入ることもありません。変換の候補の窓も、
+  カーソルのすぐ下に出ます。
+- スクロール位置：ソースモードの往復（何回でも。ソースでスクロールだけした時・書き換えた時も）・拡大縮小・本文の幅・
+  表示スタイル・段落中の改行の切り替え・ウィンドウの大きさの変更で、一番上に見えていたまとまりが動きません
+  （自動のテスト）。
+- **既知の制約：非常に大きな文書での日本語入力**。Chromium（Electron・WebView2 の中身）は、編集できる範囲
+  （`#doc`）の先頭からカーソルまでの文字を、日本語入力の変換中に何度も数え直すため、文書が大きく、カーソルが後ろの方に
+  あるほど、変換中の 1 文字ごとの処理が重くなります。いつもの PC で、860 行（約 40KB）の文書の末尾では停止・入力遅延は
+  出ませんでしたが、3400 行（約 160KB）の文書の末尾では、変換中に 1〜2 秒止まることがありました。mdee の処理を含まない
+  素の contenteditable でも同じように重くなるので、Chromium の作りによるものです（mdew も同じ）。直すには、表示している
+  まとまりだけを DOM に置く（仮想化）か、EditContext で日本語入力を自前で扱う必要があり、大きな作り直しになります。

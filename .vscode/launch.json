@@ -1,0 +1,63 @@
+{
+  // mdee を VS Code の「実行とデバッグ」（F5）から起動する設定。
+  // 先に npm install と、Electron 本体の取得（node node_modules\electron\install.js。build.cmd・dev.cmd でも行われる）が要る。
+  //  - 「mdee（メインプロセス＋画面側）」：起動して、メインプロセス（main.js・src）と画面側（web・dialog）の両方に
+  //    ブレークポイントを置ける。ふだんはこれを使う。
+  //  - 「mdee（ファイルを指定）」：開くファイル・フォルダのパスを聞いてから起動する。
+  // 開発用の起動なので、ステータスバーに停止・入力遅延の回数が出て、Ctrl+Shift+F11 でトレースを取れる（doc\DESIGN.md）。
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "mdee（メインプロセス）",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
+      "windows": { "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd" },
+      // 画面側のデバッガーがつなぐ口（下の「mdee（画面側）」の port と同じにする）
+      "args": [".", "--remote-debugging-port=9223"],
+      "outputCapture": "std",
+      "presentation": { "hidden": true }
+    },
+    {
+      "name": "mdee（ファイルを指定・メインプロセス）",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
+      "windows": { "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd" },
+      "args": [".", "--remote-debugging-port=9223", "${input:startupPath}"],
+      "outputCapture": "std",
+      "presentation": { "hidden": true }
+    },
+    {
+      "name": "mdee（画面側）",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9223,
+      "webRoot": "${workspaceFolder}",
+      // 起動してウィンドウができるまで待つ
+      "timeout": 30000,
+      "presentation": { "hidden": true }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "mdee（メインプロセス＋画面側）",
+      "configurations": ["mdee（メインプロセス）", "mdee（画面側）"],
+      "stopAll": true
+    },
+    {
+      "name": "mdee（ファイルを指定）",
+      "configurations": ["mdee（ファイルを指定・メインプロセス）", "mdee（画面側）"],
+      "stopAll": true
+    }
+  ],
+  "inputs": [
+    {
+      "id": "startupPath",
+      "type": "promptString",
+      "description": "開くファイル・フォルダのパス（.md ファイル、またはフォルダ）"
+    }
+  ]
+}

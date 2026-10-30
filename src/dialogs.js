@@ -150,6 +150,7 @@ class FindWindow {
         // 「すべて検索」で結果を表示した時等：中身に合わせた高さにする（幅は変えない）
         const [width] = this.win.getContentSize();
         this.win.setContentSize(width, Math.ceil(a_height));
+        this.fitInWorkArea();
       },
       readme: () => this.handlers.onReadme(),
     });
@@ -225,6 +226,20 @@ class FindWindow {
   close() {
     this.allowClose = true;
     if (!this.win.isDestroyed()) this.win.close();
+  }
+
+  /**
+   * 画面の作業領域の下にはみ出す時は、上へずらし、それでも入らない時は高さを縮める（結果の一覧が多い時。縮めた分は、
+   * 結果の一覧をスクロールして見る）。
+   */
+  fitInWorkArea() {
+    const b = this.win.getBounds();
+    const work = screen.getDisplayMatching(b).workArea;
+    const bottom = work.y + work.height;
+    let { y, height } = b;
+    if (y + height > bottom) y = Math.max(work.y, bottom - height);
+    if (y + height > bottom) height = bottom - y;
+    if (y !== b.y || height !== b.height) this.win.setBounds({ x: b.x, y, width: b.width, height });
   }
 
   /**
